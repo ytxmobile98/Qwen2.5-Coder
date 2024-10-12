@@ -1,4 +1,3 @@
-source /etc/profile.d/00-restore-env.sh
 export LC_ALL="POSIX"
 
 INPUT_MODEL=$1
@@ -21,7 +20,7 @@ export VLLM_ALLOW_LONG_MAX_MODEL_LEN=1
 ######################################
 run_this() {
     for t in "${TASKS[@]}"; do if [[ "$t" == "$1" ]]; then return 0
-    fi done 
+    fi done
     return 1
 }
 ######################################
@@ -132,7 +131,7 @@ if run_this "BigCodeBench"; then
         --resume  \
         --backend vllm \
         --tp $TP \
-        --save_path ${OUTPUT_DIR}/bigcodebench/full/completion.jsonl 
+        --save_path ${OUTPUT_DIR}/bigcodebench/full/completion.jsonl
 
     conda_envs/bigcodebench_env/bin/python benchmarks/bigcodebench/sanitize.py \
         --samples ${OUTPUT_DIR}/bigcodebench/full/completion.jsonl \
@@ -157,7 +156,7 @@ if run_this "BigCodeBench"; then
         --resume  \
         --backend vllm \
         --tp $TP \
-        --save_path ${OUTPUT_DIR}/bigcodebench/hard/completion.jsonl 
+        --save_path ${OUTPUT_DIR}/bigcodebench/hard/completion.jsonl
 
     conda_envs/bigcodebench_env/bin/python benchmarks/bigcodebench/sanitize.py \
         --samples ${OUTPUT_DIR}/bigcodebench/hard/completion.jsonl \
