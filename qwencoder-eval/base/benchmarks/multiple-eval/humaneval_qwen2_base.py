@@ -98,6 +98,7 @@ class HumanEval:
         res, details = evaluate_functional_correctness(
             input_file=self.log_file_path,
             problem_file=os.path.join(self.data_root, f"humaneval-{self.language}.jsonl"),
+            n_workers=16,
             tmp_dir=self.log_dir,
             timeout=timeout,
             language=self.language,
