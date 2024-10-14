@@ -5,8 +5,8 @@ OUTPUT_DIR=$2
 TP=$3
 
 TASKS=(
-    "EvalPlus"
-    # "MultiPL-E"
+    # "EvalPlus"
+    "MultiPL-E"
     # "CRUX-Eval"
     # "BigCodeBench"
 )
