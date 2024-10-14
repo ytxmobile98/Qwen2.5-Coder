@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--modelpath", type=str, default="")
     parser.add_argument("--tp", default=1, type=int)
     parser.add_argument("--just_eval", action="store_true", default=False)
-    parser.add_argument("--langs", type=str, nargs="+", default=["python", "java", "cpp", "js", "cs", "php", "sh", "ts"])
+    parser.add_argument("--langs", type=str, nargs="+", default=["go", "python", "java", "cpp", "js", "cs", "php", "sh", "ts"])
     parser.add_argument("--no_batching", action="store_true", default=False)
     parser.add_argument("--no_new_line_at_last", action="store_true", default=False)
     args = parser.parse_args()

@@ -41,7 +41,7 @@ def try_collect_evalplus(path):
 
 def try_collect_multipl_e(path):
     try:
-        lang_mapper = {"python": "Python", "java": "Java", "cpp": "C++", "js": "JavaScript", "cs": "C#", "php": "php", "sh": "Shell", "ts": "TypeScript"}
+        lang_mapper = {"go": "Go", "python": "Python", "java": "Java", "cpp": "C++", "js": "JavaScript", "cs": "C#", "php": "php", "sh": "Shell", "ts": "TypeScript"}
         d = ret(path / "results.json")
         payload = {lang_mapper[k]: v for k, v in d.items()}
     except Exception as e:
