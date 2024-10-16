@@ -1,8 +1,11 @@
+#!/usr/bin/env bash
+
 export PATH=./vllm/bin:$PATH
 
-lgs=("python" "cs" "cpp" "java" "php" "ts" "sh" "js")
+# lgs=("python" "cs" "cpp" "java" "php" "ts" "sh" "js")
+lgs=("go")
 
-npm install -g multiple_metrics/typescript-5.5.4.tgz
+# npm install -g multiple_metrics/typescript-5.5.4.tgz
 
 
 MODEL_DIR=${1}

@@ -126,7 +126,7 @@ def extract_func(text, job, language):
         if "name" in job:
             func_name = "_".join(job["name"].split("_")[2:])
         elif "test" in job:
-            func_name = re.search(r"assert (.*?)\(.*?\)", job["test"]).group(1)   
+            func_name = re.search(r"assert (.*?)\(.*?\)", job["test"]).group(1)
         if func_name is not None and func_name not in code:
             code = job["prompt"] + code
         code = "\n".join(IMPORT_HELPER["python"]) + "\n" + code
@@ -171,7 +171,7 @@ def extract_func(text, job, language):
             code = remove_nth_from_last_brace(code, n = 2, ch="}")
         elif code.count("{") - code.count("}") == 1:
             code = remove_nth_from_last_brace(code, n = 1, ch="}")
-        
+
         code = "\n".join(IMPORT_HELPER["java"]) + "\n" + code
     elif language == "cpp":
         def extract_func(code, key_line=""):
@@ -226,14 +226,14 @@ def extract_func(text, job, language):
             #     print(job["prompt"])
             # if func_signature not in text:
             #     text += job["prompt"]
-            
+
             if re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL) is not None:
                 code = re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL).group(1)
             else:
                 code = text
             # if "is_prime" in code:
             #     print(code)
-            
+
             func_signature = re.search(r"(\S+?\s+?\w+?\s*?)\(.*?\)\s*?\{\n", job["prompt"], flags=re.MULTILINE)
             if func_signature is not None:
                 func_signature = func_signature.group(1).strip()
@@ -301,7 +301,7 @@ def extract_func(text, job, language):
         code = extract_typescript_code(text)
         if "function" not in code:
             code = job["prompt"] + code
-    elif language == "cs":  
+    elif language == "cs":
         def extract_cs_code(text) -> str:
                 code_block = re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL)
                 if code_block is None:
@@ -379,7 +379,7 @@ def extract_func(text, job, language):
             code = job["prompt"] + code
         if "<?php" not in code:
             code = "<?php\n" + code
-    elif language == "sh":  
+    elif language == "sh":
         def extract_shell_code(text) -> str:
             code_block_pattern = re.compile(rf"```.*?\n(.*?)```", re.DOTALL)
             code_block = code_block_pattern.search(text)
@@ -402,7 +402,7 @@ def parse_args():
     parser.add_argument("--model", default="", type=str, help="model path")
     parser.add_argument("--data_path", default="", type=str, help="config path")
     parser.add_argument("--benchmark", default="humaneval", type=str, help="benchmark name")
-    parser.add_argument("--language", default="python", type=str, choices = ["python", "py", "sh", "java", "js", "cpp", "php", "cs", "ts"], help="langauge")
+    parser.add_argument("--language", default="python", type=str, choices = ["go", "python", "py", "sh", "java", "js", "cpp", "php", "cs", "ts"], help="langauge")
     parser.add_argument("--temperature", default=1.0, type=float)
     parser.add_argument("--tensor_parallel_size", default=4, type=int)
     parser.add_argument("--batch_size", type=int, default=1, help="batch size")
@@ -436,7 +436,7 @@ def chatml_query_preprocess(sources, tokenizer, max_len, system_message: str = "
     for j, sentence in enumerate(sources):
         role = roles[sentence["role"]]
         _input_id = tokenizer(role).input_ids + nl_tokens + tokenizer(sentence["content"]).input_ids + [im_end] + nl_tokens
-        test_input_ids += _input_id     
+        test_input_ids += _input_id
     test_input_ids += [im_start] + tokenizer("assistant").input_ids + nl_tokens
     test_input_str = tokenizer.decode(test_input_ids)
     return test_input_str, test_input_ids
@@ -486,7 +486,7 @@ def get_mbpp_prompt(doc, few_shots):
             examples_str += [example_prompt]
         return examples_str
     few_shot_prompt = get_few_shot_example()
-    q, test, code = doc['text'], doc['test_list'], doc['code'] 
+    q, test, code = doc['text'], doc['test_list'], doc['code']
     prompt = format_test_example(q, test, code=None)
     prompt_with_shots = '''
 Please refer the given examples and generate a python function for my problem.
@@ -527,7 +527,7 @@ def generate_one(args, obj, model, tokenizer):
     assert isinstance(stop_id, int), "Invalid tokenizer, <|im_end|> id not found"
 
     outputs = model.generate(
-        inputs, 
+        inputs,
         max_new_tokens=args.maxlen_out,
         do_sample=False,
         pad_token_id=stop_id,
@@ -617,7 +617,7 @@ def main():
         write_jsonl_file(generated_objs, args.generation_path)
     else:
         generated_objs = read_jsonl_file(args.generation_path)
-    
+
     if not args.generation_only:
         results, logs = process_results(args, generated_objs, language = args.language)
         dumped = json.dumps(results, indent=2)
@@ -627,6 +627,6 @@ def main():
         with open(args.metric_output_path, "w") as f:
             f.write(dumped)
 
- 
+
 if __name__ == "__main__":
     main()
