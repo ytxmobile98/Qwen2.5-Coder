@@ -3,7 +3,7 @@
 export PATH=./vllm/bin:$PATH
 
 # lgs=("python" "cs" "cpp" "java" "php" "ts" "sh" "js")
-lgs=("go")
+lgs=("go" "python" "cpp" "java" "js")
 
 # npm install -g multiple_metrics/typescript-5.5.4.tgz
 
