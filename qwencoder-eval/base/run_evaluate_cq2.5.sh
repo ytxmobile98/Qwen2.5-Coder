@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 
-MODEL_7B_PATH=/data/models/Qwen2.5-Coder-7B-Instruct
-OUTPUT_DIR=/data/yangtx/outputs
+MODEL_PATH=/data/models/DeepSeek-Coder-V2-Lite-Instruct
 
-# bash evaluate_newline_args.sh \
-#   ./qwen2.5-coder-1.5b \
-#   outptus/qwen2.5-coder/1.5b-base \
-#   1
+OUTPUT_DIR=/data/yangtx/outputs
+OUTPUT_DIR="$OUTPUT_DIR"/qwen2.5-coder/DeepSeek-Coder-V2-Lite-Instruct
 
 bash evaluate_newline_args.sh \
-  "$MODEL_7B_PATH" \
-  "$OUTPUT_DIR/qwen2.5-coder/7b-base" \
+  "$MODEL_PATH" \
+  "$OUTPUT_DIR" \
   1
