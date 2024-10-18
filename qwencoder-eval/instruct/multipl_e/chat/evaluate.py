@@ -593,7 +593,8 @@ def main():
             sampling_params = vllm.SamplingParams(temperature=0.0, top_p=0.95, max_tokens=4096)
         model = vllm.LLM(
             model = args.model, tensor_parallel_size = args.tensor_parallel_size, worker_use_ray=True,
-            gpu_memory_utilization=0.98, enforce_eager=True
+            gpu_memory_utilization=0.98, enforce_eager=True,
+            trust_remote_code=True, max_model_len=8192,
         )
     else:
         model = transformers.AutoModelForCausalLM.from_pretrained(

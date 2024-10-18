@@ -25,4 +25,3 @@ python evaluate.py  \
     --use_vllm \
     --chat_format ${CHAT_FORMAT} \
     --tensor_parallel_size ${TP}
-
