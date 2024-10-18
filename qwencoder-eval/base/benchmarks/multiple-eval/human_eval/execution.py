@@ -183,10 +183,10 @@ def check_correctness(
             open(f"test.cpp", "w").write(sample["test_code"])
             if "162" in task_id:
                 compilation_result = subprocess.run(
-                    ["/usr/bin/g++", "-std=c++17", "test.cpp", "-lcrypto", "-lssl"], timeout=timeout, capture_output=True
+                    ["g++", "-std=c++17", "test.cpp", "-lcrypto", "-lssl"], timeout=timeout, capture_output=True
                 )
             else:
-                compilation_result = subprocess.run(["/usr/bin/g++", "-std=c++17", "test.cpp"], timeout=timeout, capture_output=True)
+                compilation_result = subprocess.run(["g++", "-std=c++17", "test.cpp"], timeout=timeout, capture_output=True)
             if compilation_result.returncode != 0:
                 if compilation_result.stderr:
                     err = compilation_result.stderr.decode()
