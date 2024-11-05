@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-MODEL_PATH=/data/models/DeepSeek-Coder-V2-Lite-Instruct
+export CUDA_VISIBLE_DEVICES=2,3
 
+MODEL_PATH=/data/models/Qwen2.5-Coder-7B
 OUTPUT_DIR=/data/yangtx/outputs
-OUTPUT_DIR="$OUTPUT_DIR"/qwen2.5-coder/DeepSeek-Coder-V2-Lite-Instruct
+OUTPUT_DIR="$OUTPUT_DIR"/qwen2.5-coder/7b-base/7b-base
 
 bash evaluate_newline_args.sh \
   "$MODEL_PATH" \

@@ -68,7 +68,8 @@ if run_this "MultiPL-E"; then
     python -u benchmarks/multiple-eval/eval_multiple_lang.py \
     --tp $TP \
     --modelpath ${INPUT_MODEL} \
-    --logdir ${OUTPUT_DIR}/multipl-e
+    --logdir ${OUTPUT_DIR}/multipl-e \
+    --just_eval
 else
     echo "Skip: MultiPL-E"
 fi
