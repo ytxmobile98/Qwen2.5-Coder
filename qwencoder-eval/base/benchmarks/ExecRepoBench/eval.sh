@@ -1,6 +1,7 @@
+CURDIR=$(dirname "$(realpath "$0")")
 
 export PATH=/path/to/vllm/bin/:$PATH
-ROOT_DIR="/path/to/ExecRepoBench"
+ROOT_DIR=$CURDIR
 MODEL_NAME=${1}
 MODEL_DIR=${2}
 INPUT_PATH=${3}

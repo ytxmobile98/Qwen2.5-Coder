@@ -24,6 +24,9 @@ import tree_sitter_languages
 import io
 import importlib
 from fuzzywuzzy import fuzz
+
+TEMP_DIR_ROOT = "/data/yangtx/tmp"
+
 language_symbols = {
     "python": {
         "CLASS_TYPE": ["class_definition"],
@@ -83,7 +86,7 @@ language_symbols = {
         "FOR_STATEMENT_TYPE": ["for_statement", "foreach_statement"],
         "WHILE_STATEMENT_TYPE": ["while_statement"],
         "RETURN_STATEMENT_TYPE": ["return_statement"]
-    },  
+    },
     "typescript": {
         "CLASS_TYPE": ["class_declaration"],
         "FUNCTION_TYPE": ["function_declaration", "method_definition"],
@@ -170,7 +173,7 @@ class BM25:
                 tf = doc_terms[term]
                 idf = self.idf_scores[term] if term in self.idf_scores else 0
                 denom = tf + self.k1 * (1 - self.b + self.b * self.doc_lengths[doc_index] / self.avgdl)
-                score += idf * tf * (self.k1 + 1) / denom 
+                score += idf * tf * (self.k1 + 1) / denom
         return score
 
 
@@ -208,7 +211,7 @@ class MPLogExceptions(object):
         self.__callable = callable
 
     def error(msg, *args):
-        return mp.get_logger().error(msg, *args) 
+        return mp.get_logger().error(msg, *args)
 
     def __call__(self, *args, **kwargs):
         try:
@@ -235,7 +238,7 @@ def read_file_from_position(args):
             print(f"worker_id {worker_id} completed")
             return objs
         for cnt in tqdm.tqdm(itertools.count(), position=worker_id, desc=f"worker_id: {worker_id}"):
-            line = f.readline()  
+            line = f.readline()
             if not line:
                 break
             obj = json.loads(line)
@@ -253,7 +256,7 @@ def find_next_line(f, position):
     position = f.tell()
     return position
 
-def multi_read(file_name = 'example.txt', workers = 32, chunk_size = None):    
+def multi_read(file_name = 'example.txt', workers = 32, chunk_size = None):
     file_size = os.path.getsize(file_name)
     print(f"The size of {file_name} is: {file_size} bytes")
     if chunk_size:
@@ -306,7 +309,7 @@ def filter_code(text):
         return False
     else:
         return True
-    
+
 
 def read_file_from_position_with_filter(args):
     filename, start_position, end_position, worker_id = args
@@ -318,7 +321,7 @@ def read_file_from_position_with_filter(args):
             print(f"worker_id {worker_id} completed")
             return objs
         for cnt in tqdm.tqdm(itertools.count(), position=worker_id, desc=f"worker_id: {worker_id}"):
-            line = f.readline()  
+            line = f.readline()
             if not line:
                 break
             obj = json.loads(line)
@@ -329,7 +332,7 @@ def read_file_from_position_with_filter(args):
     print(f"worker_id {worker_id} completed")
     return objs
 
-def multi_read_with_filter(file_name = 'example.txt', workers = 32, chunk_size = None):    
+def multi_read_with_filter(file_name = 'example.txt', workers = 32, chunk_size = None):
     file_size = os.path.getsize(file_name)
     print(f"The size of {file_name} is: {file_size} bytes")
     if chunk_size:
@@ -381,7 +384,7 @@ def read_json_file(path):
         objs = json.load(r)
     print(f"Successfully loading from {path}")
     return objs
-    
+
 def write_jsonl_file(objs, path, chunk_size = 1):
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path), exist_ok = True)
@@ -429,11 +432,11 @@ def sentence_jaccard_similarity(sentence1, sentence2):
     # Tokenize the sentences into sets of words
     set1 = tokenize(sentence1)
     set2 = tokenize(sentence2)
-    
+
     # Calculate intersection and union
     intersection = set1.intersection(set2)
     union = set1.union(set2)
-    
+
     # Compute Jaccard Similarity
     similarity = len(intersection) / len(union)
     return similarity
@@ -481,7 +484,7 @@ def extract_class_name(code):
 #         tokenized_corpus = [doc.lower().split() for doc in corpus]
 #         bm25 = BM25Okapi(tokenized_corpus)
 
-#     def search(query = "text analysis in python"):  
+#     def search(query = "text analysis in python"):
 #         tokenized_query = word_tokenize(query.lower())
 #         doc_scores = bm25.get_scores(tokenized_query)
 #         best_docs = bm25.get_top_n(tokenized_query, corpus, n=3)
@@ -661,4 +664,3 @@ def get_relevance(obj, tokenizer, python_path="./miniconda3/envs/"):
     similarities = np.array(similarities) / np.sum(similarities)
     relevance = dependencies + similarities
     return relevance
-
