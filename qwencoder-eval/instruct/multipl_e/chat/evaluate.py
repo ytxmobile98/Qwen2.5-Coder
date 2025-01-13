@@ -51,7 +51,7 @@ IMPORT_HELPER = {
         "crypto/md5",
     ],
     "cpp": [
-       # "using namespace std;",
+        # "using namespace std;",
         "#include<optional>",
         "#include<cassert>",
         "#include<stdlib.h>",
@@ -96,6 +96,7 @@ IMPORT_HELPER = {
     ],
 }
 
+
 def remove_nth_from_last_brace(code, n=1, ch="}"):
     brace_count = 0
     code_lines = code.split("\n")
@@ -122,12 +123,12 @@ def extract_func(text, job, language):
 
         code = extract_python_code(text)
         if "```" in code:
-           code = code.replace("```", "")
+            code = code.replace("```", "")
         func_name = None
         if "name" in job:
             func_name = "_".join(job["name"].split("_")[2:])
         elif "test" in job:
-            func_name = re.search(r"assert (.*?)\(.*?\)", job["test"]).group(1)   
+            func_name = re.search(r"assert (.*?)\(.*?\)", job["test"]).group(1)
         if func_name is not None and func_name not in code:
             code = job["prompt"] + code
         code = "\n".join(IMPORT_HELPER["python"]) + "\n" + code
@@ -141,13 +142,15 @@ def extract_func(text, job, language):
                 return code_block.group(1)
 
         code = extract_java_code(text)
-        func_name = re.search(r"assert\((.*?)\(.*?\)\);\n", job["tests"], flags=re.DOTALL).group(1)
+        func_name = re.search(r"assert\((.*?)\(.*?\)\);\n",
+                              job["tests"], flags=re.DOTALL).group(1)
         if re.search(rf"public static .*? {func_name}\(.*?\)", code, flags=re.DOTALL) is None:
             code = job["prompt"] + "\n" + code
         elif "class Problem" not in code:
             code = "class Problem {\n" + code
         code = code.replace("public class Problem", "class Problem")
-        #func_lines = [line for line in code.split("\n") if line.strip()]
+        # func_lines = [line for line in code.split("\n") if line.strip()]
+
         def remove_main(code):
             code_lines = code.split("\n")
             stack = []
@@ -164,15 +167,15 @@ def extract_func(text, job, language):
                             stack.pop()
                             if len(stack) == 0 and start >= 0:
                                 end = i
-                                return "\n".join(code_lines[:start] + code_lines[end + 1 :])
+                                return "\n".join(code_lines[:start] + code_lines[end + 1:])
             return code
         if "public static void main" in code:
             code = remove_main(code)
         if code.count("{") - code.count("}") == 0:
-            code = remove_nth_from_last_brace(code, n = 2, ch="}")
+            code = remove_nth_from_last_brace(code, n=2, ch="}")
         elif code.count("{") - code.count("}") == 1:
-            code = remove_nth_from_last_brace(code, n = 1, ch="}")
-        
+            code = remove_nth_from_last_brace(code, n=1, ch="}")
+
         code = "\n".join(IMPORT_HELPER["java"]) + "\n" + code
     elif language == "cpp":
         def extract_func_cpp(code, key_line=""):
@@ -181,7 +184,7 @@ def extract_func(text, job, language):
             func_code = ""
             lines = code.splitlines()
             for line in lines:
-                if line.startswith("#include"): #remove using namespace
+                if line.startswith("#include"):  # remove using namespace
                     func_code += line + "\n"
                 if key_line in line:
                     found = True
@@ -197,29 +200,35 @@ def extract_func(text, job, language):
                                 return func_code
                     func_code += line + "\n"
             return ""
-        def extract_cpp_code(text, job) -> str:            
+
+        def extract_cpp_code(text, job) -> str:
             if re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL) is not None:
-                code = re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL).group(1)
+                code = re.search(rf"```.*?\n(.*?)```", text,
+                                 flags=re.DOTALL).group(1)
             else:
                 code = text
-            func_signature = re.search(r"(\S+?\s+?\w+?\s*?)\(.*?\)\s*?\{\n", job["prompt"], flags=re.MULTILINE)
+            func_signature = re.search(
+                r"(\S+?\s+?\w+?\s*?)\(.*?\)\s*?\{\n", job["prompt"], flags=re.MULTILINE)
             if func_signature is not None:
                 func_signature = func_signature.group(1).strip()
             else:
                 print(job["prompt"])
             if code is not None and func_signature not in code:
                 code = job["prompt"] + code
-            extracted_code = extract_func_cpp(code, key_line = func_signature)
+            extracted_code = extract_func_cpp(code, key_line=func_signature)
             if extracted_code == "":
-                extracted_code = extract_func_cpp(code, key_line = func_signature.split(" ")[1])
+                extracted_code = extract_func_cpp(
+                    code, key_line=func_signature.split(" ")[1])
             return extracted_code
+
         def extract_code_snippet(text, job):
             if re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL) is not None:
-                code = re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL).group(1)
+                code = re.search(rf"```.*?\n(.*?)```", text,
+                                 flags=re.DOTALL).group(1)
             else:
                 code = text
             return code
-        
+
         def remove_main(code):
             code_lines = code.split("\n")
             stack = []
@@ -236,8 +245,7 @@ def extract_func(text, job, language):
                             stack.pop()
                             if len(stack) == 0 and start >= 0:
                                 end = i
-                                return "\n".join(code_lines[:start] + code_lines[end + 1 :])
-
+                                return "\n".join(code_lines[:start] + code_lines[end + 1:])
 
         use_rule = False
         if use_rule:
@@ -265,7 +273,8 @@ def extract_func(text, job, language):
             else:
                 return text
         code = extract_go_code(text)
-        func_name = re.search(r"candidate := (.*?)\n", job["tests"], flags=re.DOTALL).group(1)
+        func_name = re.search(r"candidate := (.*?)\n",
+                              job["tests"], flags=re.DOTALL).group(1)
         if f"func {func_name}" not in code:
             code = job["prompt"] + code
     elif language == "js":  # javascript
@@ -290,13 +299,13 @@ def extract_func(text, job, language):
         code = extract_typescript_code(text)
         if "function" not in code:
             code = job["prompt"] + code
-    elif language == "cs":  
+    elif language == "cs":
         def extract_cs_code(text) -> str:
-                code_block = re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL)
-                if code_block is None:
-                    return text
-                else:
-                    return code_block.group(1)
+            code_block = re.search(rf"```.*?\n(.*?)```", text, flags=re.DOTALL)
+            if code_block is None:
+                return text
+            else:
+                return code_block.group(1)
 
         def remove_main(code):
             code_lines = code.split("\n")
@@ -314,7 +323,7 @@ def extract_func(text, job, language):
                             stack.pop()
                             if len(stack) == 0 and start >= 0:
                                 end = i
-                                return "\n".join(code_lines[:start] + code_lines[end + 1 :])
+                                return "\n".join(code_lines[:start] + code_lines[end + 1:])
 
         def extract_problem(code):
             code_lines = code.split("\n")
@@ -332,12 +341,14 @@ def extract_func(text, job, language):
                             stack.pop()
                             if len(stack) == 0 and start >= 0:
                                 end = i
-                                return "\n".join(code_lines[start : end + 1])
+                                return "\n".join(code_lines[start: end + 1])
             return code
 
         code = extract_cs_code(text)
-        existing_head = "\n".join([line for line in code.split("\n") if line.startswith("using")])
-        func_name = re.search(r"Debug.Assert\((.*?)\(.*?\)\)", job["tests"], flags=re.DOTALL).group(1)
+        existing_head = "\n".join(
+            [line for line in code.split("\n") if line.startswith("using")])
+        func_name = re.search(r"Debug.Assert\((.*?)\(.*?\)\)",
+                              job["tests"], flags=re.DOTALL).group(1)
         if f" {func_name}(" not in code:
             code = job["prompt"] + code
         elif "class Problem" not in code:
@@ -350,7 +361,8 @@ def extract_func(text, job, language):
         # func_lines = [line for line in code.split("\n") if line.strip()]
         if code is not None:
             code = remove_nth_from_last_brace(code, n=2, ch="}")
-            code = existing_head + "\n" + "\n".join(IMPORT_HELPER["cs"]) + "\n" + code
+            code = existing_head + "\n" + \
+                "\n".join(IMPORT_HELPER["cs"]) + "\n" + code
         else:
             code = extract_cs_code(text)
     elif language == "php":  # python
@@ -363,12 +375,13 @@ def extract_func(text, job, language):
                 return text
         code = extract_php_code(text)
         code = code.replace("?>", "")
-        func_name = re.search(r"function (.*?)\(.*?\)", job["prompt"], flags=re.DOTALL).group(1)
+        func_name = re.search(r"function (.*?)\(.*?\)",
+                              job["prompt"], flags=re.DOTALL).group(1)
         if f"function {func_name}" not in code:
             code = job["prompt"] + code
         if "<?php" not in code:
             code = "<?php\n" + code
-    elif language == "sh":  
+    elif language == "sh":
         def extract_shell_code(text) -> str:
             code_block_pattern = re.compile(rf"```.*?\n(.*?)```", re.DOTALL)
             code_block = code_block_pattern.search(text)
@@ -387,29 +400,47 @@ def extract_func(text, job, language):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Parameters')
-    parser.add_argument("--chat_format", "-chat_format", default="chatml", type=str, help="chat format")
-    parser.add_argument("--model", "-model", default="", type=str, help="model path")
-    parser.add_argument("--data_path", "-data_path", default="../data/", type=str, help="config path")
-    parser.add_argument("--benchmark", "-benchmark", default="humaneval", type=str, help="benchmark name")
-    parser.add_argument("--language", "-language", default="python", type=str, choices = ["python", "py", "sh", "java", "js", "cpp", "php", "cs", "ts"], help="langauge")
-    parser.add_argument("--temperature", "-temperature", default=1.0, type=float)
-    parser.add_argument("--tensor_parallel_size", "-tensor_parallel_size", default=4, type=int)
-    parser.add_argument("--batch_size", "-batch_size", type=int, default=1, help="batch size")
-    parser.add_argument("--do_sample", "-do_sample", default=False, type=bool, help="config path")
-    parser.add_argument("--model_max_length", "-model_max_length", type=int, default=2048, help="model max length")
-    parser.add_argument("--maxlen_out", "-maxlen_out", default=1024, type=int, help="config path")
-    parser.add_argument("--metric_output_path", "-metric_output_path", default="", type=str, help="config path")
-    parser.add_argument("--generation_path", "-generation_path", default="", type=str, help="config path")
-    parser.add_argument("--generation_only", "-generation_only", action = "store_true")
-    parser.add_argument("--evaluation_only", "-evaluation_only", action = "store_true")
-    parser.add_argument("--use_vllm", "-use_vllm", action = "store_true")
-    parser.add_argument("--worker_args", "-worker_args", default="", type=str, help="")
+    parser.add_argument("--chat_format", "-chat_format",
+                        default="chatml", type=str, help="chat format")
+    parser.add_argument("--model", "-model", default="",
+                        type=str, help="model path")
+    parser.add_argument("--data_path", "-data_path",
+                        default="../data/", type=str, help="config path")
+    parser.add_argument("--benchmark", "-benchmark",
+                        default="humaneval", type=str, help="benchmark name")
+    parser.add_argument("--language", "-language", default="python", type=str, choices=[
+                        "python", "py", "sh", "java", "js", "cpp", "php", "cs", "ts"], help="langauge")
+    parser.add_argument("--temperature", "-temperature",
+                        default=1.0, type=float)
+    parser.add_argument("--tensor_parallel_size",
+                        "-tensor_parallel_size", default=4, type=int)
+    parser.add_argument("--batch_size", "-batch_size",
+                        type=int, default=1, help="batch size")
+    parser.add_argument("--do_sample", "-do_sample",
+                        default=False, type=bool, help="config path")
+    parser.add_argument("--model_max_length", "-model_max_length",
+                        type=int, default=2048, help="model max length")
+    parser.add_argument("--maxlen_out", "-maxlen_out",
+                        default=1024, type=int, help="config path")
+    parser.add_argument("--metric_output_path", "-metric_output_path",
+                        default="", type=str, help="config path")
+    parser.add_argument("--generation_path", "-generation_path",
+                        default="", type=str, help="config path")
+    parser.add_argument("--generation_only",
+                        "-generation_only", action="store_true")
+    parser.add_argument("--evaluation_only",
+                        "-evaluation_only", action="store_true")
+    parser.add_argument("--use_vllm", "-use_vllm", action="store_true")
+    parser.add_argument("--worker_args", "-worker_args",
+                        default="", type=str, help="")
     args = parser.parse_args()
     return args
 
+
 def chatml_query_preprocess(sources, tokenizer, max_len, system_message: str = "You are a helpful assistant."):
     roles = {"user": "<|im_start|>user", "assistant": "<|im_start|>assistant"}
-    tokenizer.add_special_tokens({"additional_special_tokens": ["<|im_end|>", "<|im_start|>"]})
+    tokenizer.add_special_tokens(
+        {"additional_special_tokens": ["<|im_end|>", "<|im_start|>"]})
     im_start = tokenizer("<|im_start|>").input_ids[0]
     im_end = tokenizer("<|im_end|>").input_ids[0]
     nl_tokens = tokenizer('\n').input_ids
@@ -420,12 +451,14 @@ def chatml_query_preprocess(sources, tokenizer, max_len, system_message: str = "
     _assistant = tokenizer('assistant').input_ids + nl_tokens
 
     test_input_ids = []
-    system = [im_start] + _system + tokenizer(system_message).input_ids + [im_end] + nl_tokens
+    system = [im_start] + _system + \
+        tokenizer(system_message).input_ids + [im_end] + nl_tokens
     test_input_ids += system
     for j, sentence in enumerate(sources):
         role = roles[sentence["role"]]
-        _input_id = tokenizer(role).input_ids + nl_tokens + tokenizer(sentence["content"]).input_ids + [im_end] + nl_tokens
-        test_input_ids += _input_id     
+        _input_id = tokenizer(role).input_ids + nl_tokens + \
+            tokenizer(sentence["content"]).input_ids + [im_end] + nl_tokens
+        test_input_ids += _input_id
     test_input_ids += [im_start] + tokenizer("assistant").input_ids + nl_tokens
     test_input_str = tokenizer.decode(test_input_ids)
     return test_input_str, test_input_ids
@@ -440,11 +473,13 @@ def read_jsonl_file(file_name, max_sentence=None):
             data.append(obj)
     return data
 
-def write_jsonl_file(objs, path, chunk_size = 1):
+
+def write_jsonl_file(objs, path, chunk_size=1):
     with jsonlines.open(path, "w", flush=True) as w:
         for i in tqdm.tqdm(range(0, len(objs), chunk_size)):
             w.write_all(objs[i: i + chunk_size])
     print(f"Successfully saving to {path}: {len(objs)}")
+
 
 def get_humaneval_prompt(doc, language):
     language = language.lower()
@@ -458,9 +493,11 @@ Please continue to complete the function and return all completed code in a code
         language.lower(), question.strip()
     )
 
+
 def get_mbpp_prompt(doc, few_shots):
-    def format_test_example(q, tests, code: str=None):
-        prompt = "{} Your code should pass these tests:\n{}\n".format(q.strip(), "\n".join(tests))
+    def format_test_example(q, tests, code: str = None):
+        prompt = "{} Your code should pass these tests:\n{}\n".format(
+            q.strip(), "\n".join(tests))
         if code:
             code = code.replace("\r", "").replace("\t", "    ")
             prompt += "\n```python\n{}\n```".format(code)
@@ -475,7 +512,7 @@ def get_mbpp_prompt(doc, few_shots):
             examples_str += [example_prompt]
         return examples_str
     few_shot_prompt = get_few_shot_example()
-    q, test, code = doc['text'], doc['test_list'], doc['code'] 
+    q, test, code = doc['text'], doc['test_list'], doc['code']
     prompt = format_test_example(q, test, code=None)
     prompt_with_shots = '''
 Please refer the given examples and generate a python function for my problem.
@@ -487,36 +524,59 @@ Here is my problem:
 '''.strip().format('\n\n'.join(few_shot_prompt), prompt)
     return prompt_with_shots
 
+
 def load_evaluation_dataset(chat_format, data_path, name, tokenizer, max_len, language):
     if name == "humaneval":
-        test_data = read_jsonl_file(f"{data_path}/humaneval/humaneval-{language}.jsonl")
+        test_data = read_jsonl_file(
+            f"{data_path}/humaneval/humaneval-{language}.jsonl")
         for obj in test_data:
             if chat_format == "chatml":
                 obj["input_prompt"] = get_humaneval_prompt(obj, language)
-                obj["input"], obj["input_ids"] = chatml_query_preprocess([{'role': 'user', 'content': obj["input_prompt"]}], tokenizer, max_len = max_len)
+                obj["input"], obj["input_ids"] = chatml_query_preprocess(
+                    [{'role': 'user', 'content': obj["input_prompt"]}], tokenizer, max_len=max_len)
             elif chat_format == "chat_template":
                 obj["input_prompt"] = get_humaneval_prompt(obj, language)
-                obj["input"] = tokenizer.apply_chat_template([{'role': 'user', 'content': obj["input_prompt"]}], add_generation_prompt=True, tokenize=False)
+                obj["input"] = tokenizer.apply_chat_template(
+                    [{'role': 'user', 'content': obj["input_prompt"]}], add_generation_prompt=True, tokenize=False)
                 obj["input_ids"] = tokenizer(obj["input"]).input_ids
+
+    elif name == "mbpp":
+        test_data = read_jsonl_file(
+            f"{data_path}/mbpp/mbpp-{language}.parquet")
+        for obj in test_data:
+            if chat_format == "chatml":
+                obj["input_prompt"] = get_humaneval_prompt(obj, language)
+                obj["input"], obj["input_ids"] = chatml_query_preprocess(
+                    [{'role': 'user', 'content': obj["input_prompt"]}], tokenizer, max_len=max_len)
+            elif chat_format == "chat_template":
+                obj["input_prompt"] = get_humaneval_prompt(obj, language)
+                obj["input"] = tokenizer.apply_chat_template(
+                    [{'role': 'user', 'content': obj["input_prompt"]}], add_generation_prompt=True, tokenize=False)
+                obj["input_ids"] = tokenizer(obj["input"]).input_ids
+
     return test_data
 
+
 def get_output(generation):
-    chatml_pattern = re.compile(r"<\|im_start\|>assistant\n(.*?)<\|im_end\|>", flags=re.DOTALL)
+    chatml_pattern = re.compile(
+        r"<\|im_start\|>assistant\n(.*?)<\|im_end\|>", flags=re.DOTALL)
     if chatml_pattern.search(generation) is not None:
         gen = chatml_pattern.search(generation).group(1)
     else:
         gen = generation
     return gen
 
+
 def generate_one(args, obj, model, tokenizer):
     inputs = torch.tensor(obj["input_ids"]).to(model.device)
     if inputs.dim() == 1:
         inputs = inputs.unsqueeze(0)
     stop_id = tokenizer.convert_tokens_to_ids("<|im_end|>")
-    assert isinstance(stop_id, int), "Invalid tokenizer, <|im_end|> id not found"
+    assert isinstance(
+        stop_id, int), "Invalid tokenizer, <|im_end|> id not found"
 
     outputs = model.generate(
-        inputs, 
+        inputs,
         max_new_tokens=args.maxlen_out,
         do_sample=False,
         pad_token_id=stop_id,
@@ -535,7 +595,7 @@ def read_log(path):
 # def process_results(args, objs, language):
 #     # get prompts and problem names
 #     prompts_names = [{
-#         "prompt": doc["prompt"] if "prompt" in doc else doc["text"], 
+#         "prompt": doc["prompt"] if "prompt" in doc else doc["text"],
 #         "name": doc["name"] if "name" in doc else f"{i}"} for i, doc in enumerate(objs),
 #         "response": doc["generation"]
 #     ]
@@ -582,6 +642,7 @@ def check_correctness_multiple(code_string, programming_language):
         success = True
     return success, logs
 
+
 def process_results(args, objs, language):
     logs_list = []
     for i, obj in tqdm.tqdm(enumerate(objs)):
@@ -606,20 +667,24 @@ def process_results(args, objs, language):
 def main():
     args = parse_args()
     print(args)
-    tokenizer = transformers.AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
-    #tokenizer.add_special_tokens({"additional_special_tokens": ["<|im_end|>", "<|im_start|>"]})
-    
-    test_data = load_evaluation_dataset(args.chat_format, data_path = args.data_path, name = args.benchmark, tokenizer = tokenizer, max_len = args.model_max_length, language = args.language)
+    tokenizer = transformers.AutoTokenizer.from_pretrained(
+        args.model, trust_remote_code=True)
+    # tokenizer.add_special_tokens({"additional_special_tokens": ["<|im_end|>", "<|im_start|>"]})
+
+    test_data = load_evaluation_dataset(args.chat_format, data_path=args.data_path, name=args.benchmark,
+                                        tokenizer=tokenizer, max_len=args.model_max_length, language=args.language)
     if args.use_vllm:
         if "llama-3" in args.model.lower():
-            sampling_params = vllm.SamplingParams(temperature=0.0, top_p=0.95, max_tokens=4096, stop_token_ids=[128009])
+            sampling_params = vllm.SamplingParams(
+                temperature=0.0, top_p=0.95, max_tokens=4096, stop_token_ids=[128009])
         else:
-            sampling_params = vllm.SamplingParams(temperature=0.0, top_p=0.95, max_tokens=4096)
+            sampling_params = vllm.SamplingParams(
+                temperature=0.0, top_p=0.95, max_tokens=4096)
         model = vllm.LLM(
-            model = args.model, tensor_parallel_size = args.tensor_parallel_size,trust_remote_code=True)
+            model=args.model, tensor_parallel_size=args.tensor_parallel_size, trust_remote_code=True)
         # model = vllm.LLM(
         #     model = args.model, tensor_parallel_size = args.tensor_parallel_size, worker_use_ray=True, trust_remote_code = True,
-        #     gpu_memory_utilization=0.98, enforce_eager=True, 
+        #     gpu_memory_utilization=0.98, enforce_eager=True,
         # )
     else:
         model = transformers.AutoModelForCausalLM.from_pretrained(
@@ -644,12 +709,14 @@ def main():
     else:
         generated_objs = read_jsonl_file(args.generation_path)
     if not args.generation_only:
-        results, logs = process_results(args, generated_objs, language = args.language)
+        results, logs = process_results(
+            args, generated_objs, language=args.language)
         dumped = json.dumps(results, indent=2)
         write_jsonl_file(logs, f"{args.generation_path}.log")
         print(dumped)
         with open(args.metric_output_path, "w") as f:
             f.write(dumped)
- 
+
+
 if __name__ == "__main__":
     main()
