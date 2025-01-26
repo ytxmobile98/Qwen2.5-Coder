@@ -356,7 +356,6 @@ def generate_samples(args):
     generated_objs = []
     prompts = [obj["input"] for obj in objs]
     outputs = model.generate(prompts, sampling_params)
-    print("model.generate:", outputs)
     for obj, o in zip(objs, outputs):
         obj["generated_middle_code"] = o.outputs[0].text
         generated_objs.append(obj)
